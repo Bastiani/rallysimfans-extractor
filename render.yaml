@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: rallysimfans-extractor
-    env: docker
-    plan: free
-    autoDeploy: true
-    branch: main
-    buildCommand: "docker build -t rallysimfans-extractor ." 
-    startCommand: "docker run -p 3000:3000 rallysimfans-extractor"
