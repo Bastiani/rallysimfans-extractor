@@ -12,7 +12,9 @@ app.use(express.json());
 
 async function scrapeRallyTable() {
   const url = 'https://rallysimfans.hu/rbr/rally_online.php';
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
   const page = await browser.newPage();
   try {
     await page.goto(url, { waitUntil: 'networkidle2' });
