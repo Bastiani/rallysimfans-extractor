@@ -74,12 +74,12 @@ async function scrapeRallyTable() {
 
 // Rota para obter os dados do rally
 app.get('/api/rally', async (req, res) => {
-  try {
+  // try {
     const data = await scrapeRallyTable();
     res.json(JSON.parse(data as string));
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch rally data', details: error });
-  }
+  // } catch (error) {
+    // res.status(500).json({ error: 'Failed to fetch rally data', details: error });
+  // }
 });
 
 // Rota de healthcheck
