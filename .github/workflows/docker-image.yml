@@ -15,4 +15,3 @@ jobs:
       - name: Build and run container
         run: |
           docker build -t rallysimfans-extractor .
-          docker run --cap-add=SYS_ADMIN rallysimfans-extractor
