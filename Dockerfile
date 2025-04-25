@@ -23,9 +23,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get purge -y --auto-remove wget gnupg2 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && npm cache clean --force
+    && npm cache clean --force \
+    && chmod -R o+rx /usr/bin/google-chrome-stable \
+    && ls -la /usr/bin/google-chrome-stable \
+    && google-chrome-stable --version
 
 COPY . .
+
+# Garantir permissões corretas para o usuário pptruser
+RUN chown -R pptruser:pptruser /app
 
 USER pptruser
 
