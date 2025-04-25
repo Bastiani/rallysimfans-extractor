@@ -1,25 +1,21 @@
 FROM ghcr.io/puppeteer/puppeteer:latest
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Set Puppeteer to skip Chrome's sandbox
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-# Add this environment variable to disable the sandbox
-ENV PUPPETEER_ARGS=--no-sandbox
+ENV PUPPETEER_ARGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --disable-setuid-sandbox --no-first-run --no-zygote --single-process"
 
-# Install dependencies
-RUN npm ci
+RUN npm ci --only=production
 
-# Copy the rest of the application
 COPY . .
 
-# Expose the port the app runs on
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    npm cache clean --force
+
 EXPOSE 3000
 
-# Command to run the application
 CMD ["npm", "start"]
