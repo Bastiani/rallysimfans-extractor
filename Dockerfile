@@ -12,9 +12,12 @@ RUN npm ci --only=production
 
 COPY . .
 
+USER root
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     npm cache clean --force
+
+USER pptruser
 
 EXPOSE 3000
 
