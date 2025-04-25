@@ -37,4 +37,5 @@ USER pptruser
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Verificar a existência do Chrome antes de iniciar
+CMD ["sh", "-c", "ls -la /usr/bin/google-chrome-stable && google-chrome-stable --version && npm start"]
