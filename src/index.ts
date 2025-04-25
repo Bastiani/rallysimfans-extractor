@@ -60,8 +60,10 @@ async function scrapeRallyTable() {
         } : null
       };
     });
-    // Filtra apenas linhas com 'name' válido
-    rallyData = rallyData.filter(r => r.name && r.name.trim() !== '');
+    // Filtra apenas linhas com 'name' válido e limita para 10 registros
+    rallyData = rallyData
+      .filter(r => r.name && r.name.trim() !== '')
+      .slice(0, 10);
     console.log(JSON.stringify(rallyData, null, 2));
     return JSON.stringify(rallyData, null, 2)
   } catch (error) {
