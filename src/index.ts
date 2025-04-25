@@ -44,22 +44,34 @@ async function scrapeRallyTable() {
     }
     // Remove a primeira linha (dados duplicados)
     const dataRows = rallyTable.slice(5);
-    let rallyData = dataRows.map(row => {
-      return {
-        name: row[1] || null,
-        description: row[2] || null,
-        players_total: row[3] && row[3].includes('/') ? parseInt(row[3].split('/')[0]) : null,
-        players_finished: row[3] && row[3].includes('/') ? parseInt(row[3].split('/')[1]) : null,
-        stages_count: row[4] && row[4].includes('/') ? parseInt(row[4].split('/')[0]) : null,
-        legs_count: row[4] && row[4].includes('/') ? parseInt(row[4].split('/')[1]) : null,
-        creator: row[5] || null,
-        damage_model: row[6] || null,
-        schedule: row[7] ? {
-          start: row[7].split(' ')[0] && row[7].split(' ')[1] ? row[7].split(' ')[0] + ' ' + row[7].split(' ')[1] : null,
-          end: row[7].split(' ')[2] && row[7].split(' ')[3] ? row[7].split(' ')[2] + ' ' + row[7].split(' ')[3] : null
+    let rallyData: any[] = [];
+    // Precisamos buscar novamente as linhas da tabela no HTML para acessar o href corretamente
+    const rallyTableSelector = $('table').eq(17);
+    const rallyRows = rallyTableSelector.find('tr').slice(5);
+    const urlRallySimFans = 'https://rallysimfans.hu';
+    rallyRows.each((idx, rowElem) => {
+      const cells = $(rowElem).find('th,td');
+      // Busca o elemento com a classe rally_list_name
+      const rallyLink = $(rowElem).find('.rally_list_name a');
+      const href = `${urlRallySimFans}${rallyLink.attr('href')}` || null;
+      const name = rallyLink.text() || (cells.eq(1).text().trim() || null);
+      rallyData.push({
+        name,
+        href,
+        description: cells.eq(2).text().trim() || null,
+        players_total: cells.eq(3).text().includes('/') ? parseInt(cells.eq(3).text().split('/')[0]) : null,
+        players_finished: cells.eq(3).text().includes('/') ? parseInt(cells.eq(3).text().split('/')[1]) : null,
+        stages_count: cells.eq(4).text().includes('/') ? parseInt(cells.eq(4).text().split('/')[0]) : null,
+        legs_count: cells.eq(4).text().includes('/') ? parseInt(cells.eq(4).text().split('/')[1]) : null,
+        creator: cells.eq(5).text().trim() || null,
+        damage_model: cells.eq(6).text().trim() || null,
+        schedule: cells.eq(7).text() ? {
+          start: cells.eq(7).text().split(' ')[0] && cells.eq(7).text().split(' ')[1] ? cells.eq(7).text().split(' ')[0] + ' ' + cells.eq(7).text().split(' ')[1] : null,
+          end: cells.eq(7).text().split(' ')[2] && cells.eq(7).text().split(' ')[3] ? cells.eq(7).text().split(' ')[2] + ' ' + cells.eq(7).text().split(' ')[3] : null
         } : null
-      };
+      });
     });
+
     // Filtra apenas linhas com 'name' válido e limita para 10 registros
     rallyData = rallyData
       .filter(r => r.name && r.name.trim() !== '' && ['lacka6', 'bruno kruger', 'bastiani rafael'].includes(r.creator?.toLowerCase()))
