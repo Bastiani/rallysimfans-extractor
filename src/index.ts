@@ -62,9 +62,8 @@ async function scrapeRallyTable() {
     });
     // Filtra apenas linhas com 'name' válido e limita para 10 registros
     rallyData = rallyData
-      .filter(r => r.name && r.name.trim() !== '')
+      .filter(r => r.name && r.name.trim() !== '' && ['lacka6', 'bruno kruger', 'bastiani rafael'].includes(r.creator?.toLowerCase()))
       .slice(0, 10);
-    console.log(JSON.stringify(rallyData, null, 2));
     return JSON.stringify(rallyData, null, 2)
   } catch (error) {
     console.error('Erro ao extrair a tabela:', error);
