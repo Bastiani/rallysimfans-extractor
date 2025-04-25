@@ -11,22 +11,30 @@ ENV PUPPETEER_ARGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --disable
 
 # Instalar dependências e Chrome com otimizações
 USER root
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     wget \
-    gnupg2 \
+    gnupg \
     ca-certificates \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends google-chrome-stable \
+    && which google-chrome-stable \
     && npm ci --only=production \
-    && apt-get purge -y --auto-remove wget gnupg2 \
+    && apt-get purge -y --auto-remove wget gnupg \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && npm cache clean --force \
-    && chmod -R o+rx /usr/bin/google-chrome-stable \
-    && ls -la /usr/bin/google-chrome-stable \
-    && google-chrome-stable --version
+    && npm cache clean --force
+
+# Verificar e ajustar permissões do Chrome
+RUN if [ -f /usr/bin/google-chrome-stable ]; then \
+    chmod -R o+rx /usr/bin/google-chrome-stable && \
+    ls -la /usr/bin/google-chrome-stable && \
+    google-chrome-stable --version; \
+    else \
+    echo "Chrome não foi instalado corretamente" && exit 1; \
+    fi
 
 COPY . .
 
@@ -37,5 +45,4 @@ USER pptruser
 
 EXPOSE 3000
 
-# Verificar a existência do Chrome antes de iniciar
-CMD ["sh", "-c", "ls -la /usr/bin/google-chrome-stable && google-chrome-stable --version && npm start"]
+CMD ["npm", "start"]
