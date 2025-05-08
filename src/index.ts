@@ -2,7 +2,10 @@ import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import express from 'express';
 import cors from 'cors';
-
+import { sendMessageToWhatsApp } from './whats.ts';
+import { checkDate } from './checkDate.ts';
+import { initDB, wasCheckDateTrue, setCheckDateTrue } from './db.ts';import { generateOpenAIMessage } from './openaiMessage.ts';
+import type { ChatCompletionMessage } from 'openai/resources/index';
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -43,7 +46,7 @@ async function scrapeRallyTable() {
       return;
     }
     // Remove a primeira linha (dados duplicados)
-    const dataRows = rallyTable.slice(5);
+    // const dataRows = rallyTable.slice(5);
     let rallyData: any[] = [];
     // Precisamos buscar novamente as linhas da tabela no HTML para acessar o href corretamente
     const rallyTableSelector = $('table').eq(17);
@@ -72,27 +75,38 @@ async function scrapeRallyTable() {
       });
     });
 
-    // Filtra apenas linhas com 'name' válido e limita para 10 registros
+    // Filtra apenas linhas com 'name' válido
     rallyData = rallyData
       .filter(r => r.name && r.name.trim() !== '' && ['lacka6', 'bruno kruger', 'bastiani rafael'].includes(r.creator?.toLowerCase()))
-      .slice(0, 10);
+      // Processa apenas os dados de 'bastiani rafael' e verifica se a data já foi validada com sucesso
+      // Executa checkDate apenas para 'bastiani rafael' e só se não foi executado com sucesso para a mesma data
+    for (const r of rallyData) {
+      if (r.creator?.toLowerCase() === 'bastiani rafael' && r.schedule?.start) {
+        const alreadyChecked = await wasCheckDateTrue(r.creator, r.schedule.start);
+        if (!alreadyChecked) {
+          const result = await checkDate(r.schedule.start);
+          if (result === true) {
+            await setCheckDateTrue(r.creator, r.schedule.start);
+            const message = await generateOpenAIMessage(r.name, r.href);
+            sendMessageToWhatsApp(message);
+          }
+        }
+      }
+    }
     return JSON.stringify(rallyData, null, 2)
   } catch (error) {
     console.error('Erro ao extrair a tabela:', error);
     return { error: 'Failed to extract table', details: error }
   } finally {
+    // sendMessageToWhatsApp();
     await browser.close();
   }
 }
 
 // Rota para obter os dados do rally
 app.get('/api/rally', async (req, res) => {
-  // try {
     const data = await scrapeRallyTable();
-    res.json(JSON.parse(data as string));
-  // } catch (error) {
-    // res.status(500).json({ error: 'Failed to fetch rally data', details: error });
-  // }
+    res.json(JSON.parse(data as unknown as string));
 });
 
 // Rota de healthcheck
@@ -101,6 +115,8 @@ app.get('/health', (req, res) => {
 });
 
 // Inicia o servidor
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+initDB().then(() => {
+  app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+  });
 });
