@@ -20,18 +20,18 @@ app.get("/api/online/rally-table", async (req, res) => {
   res.json(JSON.parse(result));
 });
 
-app.get("/api/online/rally-online-results", async (req, res) => {
-  // Executa o scrape e salva/retorna do cache conforme a lógica de 1 minuto
+// app.get("/api/online/rally-online-results", async (req, res) => {
+//   // Executa o scrape e salva/retorna do cache conforme a lógica de 1 minuto
 
-  const result = await scrapeOnlineRallyResultsTable("83728");
-  const resultTop = JSON.stringify(result.slice(0, 9), null, 2);
-  const generatedMsg = await generateMessageForRallyResults(
-    resultTop,
-    `https://rallysimfans.hu/rbr/rally_online.php?centerbox=rally_results.php&rally_id=83728`
-  );
-  sendMessageToWhatsApp(generatedMsg);
-  res.json(JSON.parse(resultTop));
-});
+//   const result = await scrapeOnlineRallyResultsTable("83728");
+//   const resultTop = JSON.stringify(result.slice(0, 9), null, 2);
+//   const generatedMsg = await generateMessageForRallyResults(
+//     resultTop,
+//     `https://rallysimfans.hu/rbr/rally_online.php?centerbox=rally_results.php&rally_id=83728`
+//   );
+//   sendMessageToWhatsApp(generatedMsg);
+//   res.json(JSON.parse(resultTop));
+// });
 
 // Rota de healthcheck
 app.get("/health", (req, res) => {
