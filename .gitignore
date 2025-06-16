@@ -23,4 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.*
 .wwebjs*
+
+# SSL Certificates and Certbot
+certbot/
+
+# Database
+src/db/data.sqlite
+src/db/*.db
+
+# Docker volumes
+data/
+volumes/

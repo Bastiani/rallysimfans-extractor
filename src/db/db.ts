@@ -62,9 +62,9 @@ export async function saveOrGetOnlineRallyTableScrapeResult() {
     }
     const lastTime = new Date(createdAtString).getTime();
     const now = Date.now();
-    if (now - lastTime < 60 * 1000) {
-      // Menos de 1 minuto, retorna o cache
-      console.log('Returning cached data as it is less than 1 minute old');
+    if (now - lastTime < 10 * 60 * 1000) {
+      // Menos de 10 minutos, retorna o cache
+      console.log('Returning cached data as it is less than 10 minutes old');
       return last.data;
     }
   }
