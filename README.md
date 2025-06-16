@@ -161,11 +161,22 @@ docker-compose exec nginx nginx -s reload
    - Verifique se o domínio está apontando corretamente
    - Execute `./init-letsencrypt.sh` novamente
 
-2. **API não responde**:
+2. **"Another instance of Certbot is already running"**:
+   ```bash
+   # Solução rápida
+   make ssl-fix
+   # ou
+   ./fix-certbot-lock.sh
+   
+   # Depois tente novamente
+   make ssl-init
+   ```
+
+3. **API não responde**:
    - Verifique logs: `docker-compose logs app`
    - Verifique se o container está rodando: `docker-compose ps`
 
-3. **Nginx não inicia**:
+4. **Nginx não inicia**:
    - Verifique configuração: `docker-compose exec nginx nginx -t`
    - Verifique logs: `docker-compose logs nginx`
 

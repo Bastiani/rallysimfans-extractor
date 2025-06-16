@@ -13,6 +13,7 @@ help:
 	@echo "  ssl-init     - Inicializar certificados SSL"
 	@echo "  ssl-renew    - Renovar certificados SSL"
 	@echo "  ssl-check    - Verificar certificados SSL"
+	@echo "  ssl-fix      - Corrigir problemas de lock do certbot"
 	@echo "  clean        - Limpar containers e volumes"
 	@echo "  shell-app    - Acessar shell do container da aplicação"
 	@echo "  shell-nginx  - Acessar shell do container nginx"
@@ -65,6 +66,11 @@ ssl-renew:
 ssl-check:
 	@echo "🔍 Verificando certificados SSL..."
 	docker-compose run --rm certbot certificates
+
+# Fix certbot lock issues
+ssl-fix:
+	@echo "🔧 Corrigindo problemas de lock do certbot..."
+	./fix-certbot-lock.sh
 
 # Clean up containers and volumes
 clean:

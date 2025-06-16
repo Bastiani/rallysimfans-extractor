@@ -7,6 +7,25 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
+# Verificar e limpar instâncias do certbot em execução
+echo "### Verificando instâncias do certbot em execução..."
+
+# Parar containers do certbot
+docker-compose stop certbot 2>/dev/null || true
+docker stop $(docker ps -q --filter "name=certbot") 2>/dev/null || true
+
+# Remover arquivos de lock
+if [ -d "./certbot/conf" ]; then
+  echo "### Removendo possíveis arquivos de lock..."
+  docker run --rm -v "$(pwd)/certbot/conf:/etc/letsencrypt" certbot/certbot sh -c "
+    find /etc/letsencrypt -name '*.lock' -delete 2>/dev/null || true
+    find /etc/letsencrypt -name '.certbot.lock' -delete 2>/dev/null || true
+  " 2>/dev/null || true
+fi
+
+# Aguardar um pouco para garantir que tudo foi limpo
+sleep 2
+
 domains=(rafaelbastiani.com www.rafaelbastiani.com)
 rsa_key_size=4096
 data_path="./certbot"
